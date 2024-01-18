@@ -44,6 +44,8 @@ type StateLogStore interface {
 type StateMachineRepository interface {
 	GetStateMachineById(stateMachineId string) (statelang.StateMachine, error)
 
+	GetStateMachineByNameAndTenantId(stateMachineName string, tenantId string) (statelang.StateMachine, error)
+
 	GetLastVersionStateMachine(stateMachineName string, tenantId string) (statelang.StateMachine, error)
 
 	RegistryStateMachine(statelang.StateMachine) error

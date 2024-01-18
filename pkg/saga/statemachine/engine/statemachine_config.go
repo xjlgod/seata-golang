@@ -7,6 +7,7 @@ import (
 	"github.com/seata/seata-go/pkg/saga/statemachine/engine/sequence"
 	"github.com/seata/seata-go/pkg/saga/statemachine/engine/status_decision"
 	"github.com/seata/seata-go/pkg/saga/statemachine/engine/store"
+	"sync"
 )
 
 type StateMachineConfig interface {
@@ -41,4 +42,6 @@ type StateMachineConfig interface {
 	TransOperationTimeout() int
 
 	ServiceInvokeTimeout() int
+
+	ComponentLock() *sync.Mutex
 }

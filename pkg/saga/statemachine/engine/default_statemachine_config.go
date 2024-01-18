@@ -7,6 +7,7 @@ import (
 	"github.com/seata/seata-go/pkg/saga/statemachine/engine/sequence"
 	"github.com/seata/seata-go/pkg/saga/statemachine/engine/status_decision"
 	"github.com/seata/seata-go/pkg/saga/statemachine/engine/store"
+	"sync"
 )
 
 const (
@@ -22,6 +23,10 @@ type DefaultStateMachineConfig struct {
 	defaultTenantId       string
 
 	// Components
+
+	// Event publisher
+	syncProcessCtrlEventPublisher  events.EventPublisher
+	asyncProcessCtrlEventPublisher events.EventPublisher
 
 	// Store related components
 	stateLogRepository     store.StateLogRepository
@@ -40,6 +45,79 @@ type DefaultStateMachineConfig struct {
 	// Other components
 	statusDecisionStrategy status_decision.StatusDecisionStrategy
 	seqGenerator           sequence.SeqGenerator
+	componentLock          *sync.Mutex
+}
+
+func (c *DefaultStateMachineConfig) ComponentLock() *sync.Mutex {
+	return c.componentLock
+}
+
+func (c *DefaultStateMachineConfig) SetComponentLock(componentLock *sync.Mutex) {
+	c.componentLock = componentLock
+}
+
+func (c *DefaultStateMachineConfig) SetTransOperationTimeout(transOperationTimeout int) {
+	c.transOperationTimeout = transOperationTimeout
+}
+
+func (c *DefaultStateMachineConfig) SetServiceInvokeTimeout(serviceInvokeTimeout int) {
+	c.serviceInvokeTimeout = serviceInvokeTimeout
+}
+
+func (c *DefaultStateMachineConfig) SetCharset(charset string) {
+	c.charset = charset
+}
+
+func (c *DefaultStateMachineConfig) SetDefaultTenantId(defaultTenantId string) {
+	c.defaultTenantId = defaultTenantId
+}
+
+func (c *DefaultStateMachineConfig) SetSyncProcessCtrlEventPublisher(syncProcessCtrlEventPublisher events.EventPublisher) {
+	c.syncProcessCtrlEventPublisher = syncProcessCtrlEventPublisher
+}
+
+func (c *DefaultStateMachineConfig) SetAsyncProcessCtrlEventPublisher(asyncProcessCtrlEventPublisher events.EventPublisher) {
+	c.asyncProcessCtrlEventPublisher = asyncProcessCtrlEventPublisher
+}
+
+func (c *DefaultStateMachineConfig) SetStateLogRepository(stateLogRepository store.StateLogRepository) {
+	c.stateLogRepository = stateLogRepository
+}
+
+func (c *DefaultStateMachineConfig) SetStateLogStore(stateLogStore store.StateLogStore) {
+	c.stateLogStore = stateLogStore
+}
+
+func (c *DefaultStateMachineConfig) SetStateLangStore(stateLangStore store.StateLangStore) {
+	c.stateLangStore = stateLangStore
+}
+
+func (c *DefaultStateMachineConfig) SetStateMachineRepository(stateMachineRepository store.StateMachineRepository) {
+	c.stateMachineRepository = stateMachineRepository
+}
+
+func (c *DefaultStateMachineConfig) SetExpressionFactoryManager(expressionFactoryManager expr.ExpressionFactoryManager) {
+	c.expressionFactoryManager = expressionFactoryManager
+}
+
+func (c *DefaultStateMachineConfig) SetExpressionResolver(expressionResolver expr.ExpressionResolver) {
+	c.expressionResolver = expressionResolver
+}
+
+func (c *DefaultStateMachineConfig) SetServiceInvokerManager(serviceInvokerManager invoker.ServiceInvokerManager) {
+	c.serviceInvokerManager = serviceInvokerManager
+}
+
+func (c *DefaultStateMachineConfig) SetScriptInvokerManager(scriptInvokerManager invoker.ScriptInvokerManager) {
+	c.scriptInvokerManager = scriptInvokerManager
+}
+
+func (c *DefaultStateMachineConfig) SetStatusDecisionStrategy(statusDecisionStrategy status_decision.StatusDecisionStrategy) {
+	c.statusDecisionStrategy = statusDecisionStrategy
+}
+
+func (c *DefaultStateMachineConfig) SetSeqGenerator(seqGenerator sequence.SeqGenerator) {
+	c.seqGenerator = seqGenerator
 }
 
 func (c *DefaultStateMachineConfig) StateLogRepository() store.StateLogRepository {
@@ -75,13 +153,11 @@ func (c *DefaultStateMachineConfig) StatusDecisionStrategy() status_decision.Sta
 }
 
 func (c *DefaultStateMachineConfig) EventPublisher() events.EventPublisher {
-	//TODO implement me
-	panic("implement me")
+	return c.syncProcessCtrlEventPublisher
 }
 
 func (c *DefaultStateMachineConfig) AsyncEventPublisher() events.EventPublisher {
-	//TODO implement me
-	panic("implement me")
+	return c.asyncProcessCtrlEventPublisher
 }
 
 func (c *DefaultStateMachineConfig) ServiceInvokerManager() invoker.ServiceInvokerManager {
@@ -118,6 +194,7 @@ func NewDefaultStateMachineConfig() *DefaultStateMachineConfig {
 		serviceInvokeTimeout:  DefaultServiceInvokeTimeout,
 		charset:               "UTF-8",
 		defaultTenantId:       "000001",
+		componentLock:         &sync.Mutex{},
 	}
 	return c
 }

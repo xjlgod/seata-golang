@@ -140,8 +140,8 @@ func (s *StateLogStore) RecordStateMachineFinished(ctx context.Context, machineI
 
 	endParams := machineInstance.EndParams()
 
-	if statelang.SU == machineInstance.Status() && machineInstance.Error() != nil {
-		machineInstance.SetError(nil)
+	if statelang.SU == machineInstance.Status() && machineInstance.Exception() != nil {
+		machineInstance.SetException(nil)
 	}
 
 	serializedEndParams, err := s.paramsSerializer.Serialize(endParams)
@@ -149,7 +149,7 @@ func (s *StateLogStore) RecordStateMachineFinished(ctx context.Context, machineI
 		return err
 	}
 	machineInstance.SetSerializedEndParams(serializedEndParams)
-	serializedError, err := s.errorSerializer.Serialize(machineInstance.Error())
+	serializedError, err := s.errorSerializer.Serialize(machineInstance.Exception())
 	if err != nil {
 		return err
 	}
@@ -372,7 +372,7 @@ func (s *StateLogStore) deserializeStateMachineParamsAndException(stateMachineIn
 		if err != nil {
 			return err
 		}
-		stateMachineInstance.SetError(deserializedError)
+		stateMachineInstance.SetException(deserializedError)
 	}
 
 	serializedStartParams := stateMachineInstance.SerializedStartParams()

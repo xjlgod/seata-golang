@@ -60,7 +60,7 @@ func (d *DefaultBusinessProcessor) getProcessHandler(processType ProcessType) (P
 	defer d.mu.RUnlock()
 	processHandler, ok := d.processHandlers[string(processType)]
 	if !ok {
-		return nil, errors.New("Cannot find process handler by type " + string(processType))
+		return nil, errors.New("Cannot find Process handler by type " + string(processType))
 	}
 	return processHandler, nil
 }
@@ -81,12 +81,4 @@ func (d *DefaultBusinessProcessor) matchProcessType(processContext ProcessContex
 		return processContext.GetVariable(constant.VarNameProcessType).(ProcessType)
 	}
 	return StateLang
-}
-
-type ProcessHandler interface {
-	Process(ctx context.Context, processContext ProcessContext) error
-}
-
-type RouterHandler interface {
-	Route(ctx context.Context, processContext ProcessContext) error
 }
